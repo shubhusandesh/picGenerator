@@ -10,11 +10,12 @@
             margin:0;
         }
         .container{
+            padding-top: 50px;
             min-height:100vh;
             width:100%;
             background: #faffe5;
             display:flex;
-            justify-content : center;
+            justify-content : flex-start;
             align-items:center;
             flex-direction: column;
             align-content: space-between;
@@ -23,6 +24,10 @@
             display:flex;
             width: 500px;
             justify-content: space-between
+        }
+        .container .input-container.label-container{
+           margin-bottom: 20px;
+           border-bottom: 1px solid #cecece;
         }
         .container .input-container input{
             padding:20px;
@@ -41,20 +46,34 @@
     <div class="container">
         <div class="input-container">
             <input id="text-box" type="text" name="text-box" placeholder="Write something here..">
-            <input type="range" id="max-gradient" name="number_of_gradient" min="2" max="10" value="2" placeholder="Number of colors">
             <input type="submit" id="text-button" value="generate">
         </div>
-        <canvas width="1200" height="750" id="myCanvas"  style="border:1px solid #d3d3d3;">
+        <div class="input-container">
+            <input type="range" id="max-gradient" name="number_of_gradient" min="2" max="10" value="2" placeholder="Number of colors">
+            <input type="range" id="max-size" name="size_of_canvas" min="200" max=1200 placeholder="Number of colors">
+        </div>
+        <div class="input-container label-container"  >
+            <label for="">Adjust Range of Colors</label>
+            <label for="">Adjust Size of Canvas</label>
+        </div>
+        <canvas id="myCanvas"  style="border:1px solid #d3d3d3;" width="400" height="200">
         </canvas>
     </div>
     
     <script>
 
         let box = document.getElementById('text-box');
+        let boxSize = document.getElementById('max-size');
         let button = document.getElementById('text-button');
         button.addEventListener('click',function(e){
             e.preventDefault();
             makePic(box.value);
+        })
+        boxSize.addEventListener('change',function(e){
+            e.preventDefault();
+            document.getElementById("myCanvas").width = e.target.value
+            document.getElementById("myCanvas").height = e.target.value/2.5;
+            alert('reInit Canvas!')
         })
 
         function makePic(text){
