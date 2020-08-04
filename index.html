@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>\
+    <style>
+        *,body{
+            padding:0;
+            margin:0;
+        }
+        .container{
+            min-height:100vh;
+            width:100%;
+            background: #faffe5;
+            display:flex;
+            justify-content : center;
+            align-items:center;
+            flex-direction: column;
+            align-content: space-between;
+        }
+        .container .input-container{
+            display:flex;
+            width: 500px;
+            justify-content: space-between
+        }
+        .container .input-container input{
+            padding:20px;
+            margin-bottom: 10px;
+        }
+        .container .containerCanvas{
+            background:white;
+            height: 200px;
+            width: 200px;
+        }
+    </style>
+</head>
+<body>
+
+
+    <div class="container">
+        <div class="input-container">
+            <input id="text-box" type="text" name="text-box" placeholder="Write something here..">
+            <input type="range" id="max-gradient" name="number_of_gradient" min="2" max="10" value="2" placeholder="Number of colors">
+            <input type="submit" id="text-button" value="generate">
+        </div>
+        <canvas width="1200" height="750" id="myCanvas"  style="border:1px solid #d3d3d3;">
+        </canvas>
+    </div>
+    
+    <script>
+
+        let box = document.getElementById('text-box');
+        let button = document.getElementById('text-button');
+        button.addEventListener('click',function(e){
+            e.preventDefault();
+            makePic(box.value);
+        })
+
+        function makePic(text){
+            let canvas = document.getElementById("myCanvas");
+            let ctx = canvas.getContext("2d");
+            let grd = ctx.createLinearGradient(0,0,canvas.width ,canvas.height);
+            let max = document.getElementById('max-gradient').value? document.getElementById('max-gradient').value:3;
+            let randomColors= getRandomColors(max);
+            alert("Generated colors are :\n"+randomColors);
+            let pointFills = makelist(max,[0,1],true);//find quartiles with given range 
+            for(let i=0; i<max;i++){
+                grd.addColorStop(pointFills[i], randomColors[i]);
+            }
+            ctx.fillStyle = grd;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            let centerPointWidth = text.length;
+            let centerPointHeight = 30;
+            ctx.font = centerPointHeight+"px Arial";
+            ctx.strokeText(text,(canvas.width / 2) - (centerPointWidth / 2)-50, (canvas.height / 2) - (centerPointHeight / 2));
+           
+        }
+   
+
+    function getRandomColors(num=2) {
+        let letters = '0123456789ABCDEF';
+        let colorArr= [];
+        for(let j=0; j<num;j++){
+            let color = '#';
+            for (let i = 0; i < 6; i++) {
+                color += letters[Math.floor(Math.random() * 16)];
+            }
+            colorArr.push(color);
+        }
+        return colorArr;
+    }
+
+
+    function  makelist(numValues, extrema,  quartiles, sortData) {
+        let milestone_V = [extrema[0]];
+        let milestone_N = [0];
+        let q_size = numValues / (quartiles.length + 1); // because the givens do not include the extremes
+        let accounted = 0;
+        for ( let i = 0; i < quartiles.length; ++i ) { // easier to do with a filter!
+            accounted = (i+1) * q_size; 
+            if ( quartiles[i] !== -1 ) {
+            milestone_V.push( quartiles[i] );
+            milestone_N.push( Math.floor(accounted) );
+            }
+        }
+        // tweak ranges for the last value
+        milestone_N.push( numValues - 1 );
+        milestone_V.push( extrema[1] );
+        //  console.log("inputs:", "numValues=", numValues, "range=", extrema, "quartiles=", quartiles);
+
+        function myfill (N, fillrange) {
+            let count = Math.floor(N);
+            if (count <= 0) return [];
+            // fills [lower, upper)
+            let res = [];
+            let step = (fillrange[1] - fillrange[0]) / count;
+            let v0 = fillrange[0];
+            for (let i = 0; i < N; ++i) {
+                let tmp = v0 + i * step;
+                res.push(Math.round(tmp*1e3)/1000); // prints 3 dec digits, most of the time
+            }
+            return res;
+        }
+
+    // driver
+        let outcome = [];
+        for ( let qno = 1; qno < milestone_V.length; ++qno ) {
+            let qrange = [ milestone_V[qno-1], milestone_V[qno] ];
+            let howmany = milestone_N[qno] - milestone_N[qno-1];
+            let tmp = myfill(howmany, qrange);
+            outcome = outcome.concat(tmp);
+        }
+        outcome.push( extrema[1] );
+        return outcome;
+    }
+
+
+    </script>
+
+</body>
+</html>
